@@ -47,6 +47,18 @@ func (conn *Connection) SetWay(way net.Conn){
   conn.connected = true
 }
 
+func (conn *Connection) WriteRequest(req *Request){
+  length := len(req.data)
+  var line string
+  line = fmt.Sprintf("*%d\r\n",length)
+  conn.way.Write([]byte(line))
+  for _,arg := range req.data {
+    line = fmt.Sprintf("$%d\r\n",len(arg))
+    conn.way.Write([]byte(line))
+    line = fmt.Sprintf("%s\r\n",arg)
+    conn.way.Write([]byte(line))
+  }
+}
 
 
 func (conn *Connection) ReadRequest() Request{

@@ -4,16 +4,19 @@ import (
 "fmt"
 "flag"
 "os"
-
 "github.com/gosexy/yaml"
 )
+
+var cluster Cluster
+
 
 
 func handleConnection(c net.Conn){
   defer c.Close()
   conn := new(Connection)
   conn.SetWay(c) 
-  conn.ReadRequest()
+  req  := conn.ReadRequest()
+  cluster.Write(&req)
 }
 
 func main(){
@@ -24,7 +27,8 @@ func main(){
     fmt.Printf("readfile(%q): %s", *config, err)
     os.Exit(1)
   }else{
-    _ = config.Get("cluster").(map[interface {}]interface{})
+    cfg  := config.Get("cluster").(map[interface {}]interface{})
+    cluster.Config(cfg)
   }
   
   ln, err := net.Listen("tcp", "0.0.0.0:7000")
